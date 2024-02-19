@@ -1,0 +1,17 @@
+TODO:
+
+Frontend:
+
+1-Movies types.
+2-Shows pagination.
+
+3-Remove "Add to Watch List" and "Delete" button from links when not logged in.
+4-Remove "Delete" button from link not owned by user.
+5-Connect TMDB API with home page (_index.tsx).
+6-Change movies.$page.tsx and shows.$page.tsx to use TMBD API.
+7-Connect movie.$id.tsx and show.$id.tsx with TMBD API.
+8-Connect movie.$id.links.tsx and show.$id.links with my API.
+9-Connect profile.tsx with my own API.
+10-Connect profile.invitations.tsx with my own API.
+
+Backend: Everything

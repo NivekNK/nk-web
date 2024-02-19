@@ -1,9 +1,13 @@
 import {
     ColumnDef,
+    SortingState,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
+    getSortedRowModel,
+    getFilteredRowModel,
 } from "@tanstack/react-table";
 
 import {
@@ -24,11 +28,22 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "~/components/pagination-no-link";
-import { useState } from "react";
+
+import { Input } from "~/components/ui/input";
+
+import { ReactNode, useState } from "react";
+
+interface Filtered {
+    column: string;
+    placeholder: string;
+}
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    pageSize: number;
+    filtered: Filtered;
+    children?: ReactNode;
 }
 
 interface NumberedPaginationLinkProps {
@@ -106,22 +121,53 @@ function PaginationLink3(props: NumberedPaginationLinkProps) {
 export function DataTable<TData, TValue>({
     columns,
     data,
+    pageSize,
+    filtered,
+    children,
 }: DataTableProps<TData, TValue>) {
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [pageIndex, setPageIndex] = useState(1);
+
     const table = useReactTable({
         data,
         columns,
         initialState: {
             pagination: {
-                pageSize: 5,
+                pageSize: pageSize,
             },
         },
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        onColumnFiltersChange: setColumnFilters,
+        getFilteredRowModel: getFilteredRowModel(),
+        state: {
+            sorting,
+            columnFilters,
+        },
     });
 
     return (
         <div>
+            <div className="flex items-center justify-between py-4">
+                <Input
+                    placeholder={filtered.placeholder}
+                    value={
+                        (table
+                            .getColumn(filtered.column)
+                            ?.getFilterValue() as string) ?? ""
+                    }
+                    onChange={(event) =>
+                        table
+                            .getColumn(filtered.column)
+                            ?.setFilterValue(event.target.value)
+                    }
+                    className="max-w-sm"
+                />
+                {children}
+            </div>
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -228,7 +274,8 @@ export function DataTable<TData, TValue>({
                                         />
                                     </PaginationItem>
                                     {table.getPageCount() > 3 &&
-                                        pageIndex < table.getPageCount() - 1 && (
+                                        pageIndex <
+                                            table.getPageCount() - 1 && (
                                             <PaginationItem>
                                                 <PaginationEllipsis />
                                             </PaginationItem>

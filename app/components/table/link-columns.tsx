@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-
+import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
     DropdownMenu,
@@ -14,13 +13,30 @@ import {
 export interface ILink {
     id: number;
     link: string;
+    userId: string | null;
+    owned: boolean;
+    contentId: number;
+    contentName: string;
+    contentDate: string;
+    backdropUrl: string;
+    inWatchList: boolean;
 }
 
 export const columns: ColumnDef<ILink>[] = [
     {
         accessorKey: "link",
-        header: "Links",
-        cell: ({row}) => {
+        header: ({ column }) => {
+            return (
+                <Button
+                  variant="ghost"
+                  onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Links
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
             const link = row.original;
             return (<a href={link.link} className="transition duration-100 hover:text-primary">{link.link}</a>);
         },
@@ -48,15 +64,43 @@ export const columns: ColumnDef<ILink>[] = [
                             Copy link
                         </DropdownMenuItem>
                         <DropdownMenuItem>Report</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            onClick={() => {
-                                console.log(`delete ${link.link}`);
-                            }}
-                            className="text-red-700"
-                        >
-                            Delete
-                        </DropdownMenuItem>
+                        {link.userId !== null && !link.inWatchList &&
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        console.log(`Add ${link.contentName} to user ${link.userId} Watch List`);
+                                    }}
+                                >
+                                    Add to Watch List
+                                </DropdownMenuItem>
+                            </>
+                        }
+                        {link.userId !== null &&
+                            <>
+                                <DropdownMenuSeparator />
+                                {link.inWatchList &&
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            console.log(`delete ${link.link} for user ${link.userId}`);
+                                        }}
+                                        className="text-red-700"
+                                    >
+                                        Remove from Watch List
+                                    </DropdownMenuItem>
+                                }
+                                {link.owned &&
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            console.log(`delete ${link.link} for user ${link.userId}`);
+                                        }}
+                                        className="text-red-600"
+                                    >
+                                        Delete
+                                    </DropdownMenuItem>
+                                }
+                            </>
+                        }
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

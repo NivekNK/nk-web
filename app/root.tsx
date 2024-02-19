@@ -1,5 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
 import {
     Links,
     LiveReload,
@@ -11,6 +11,8 @@ import {
 import styles from "./tailwind.css";
 import { Navbar } from "~/components/navbar";
 import { ReactNode } from "react";
+import { rootAuthLoader } from "@clerk/remix/ssr.server";
+import { ClerkApp, ClerkErrorBoundary } from "@clerk/remix";
 
 export const links: LinksFunction = () => [
     { rel: "stylesheet", href: styles },
@@ -27,11 +29,11 @@ function Layout(props: ILayoutProps) {
             <Navbar routes={[
                 {
                     name: "Movies",
-                    path: "/movies",
+                    path: "/movies/1",
                 },
                 {
                     name: "Shows",
-                    path: "/shows",
+                    path: "/shows/1",
                 },
             ]}/>
             <main className="pt-24 sm:mx-8 md:mx-16 lg:mx-32">
@@ -41,7 +43,10 @@ function Layout(props: ILayoutProps) {
     );
 }
 
-export default function App() {
+export const loader: LoaderFunction = (args) => rootAuthLoader(args);
+export const ErrorBoundary = ClerkErrorBoundary();
+
+function App() {
     return (
         <html lang="en">
             <head>
@@ -64,3 +69,5 @@ export default function App() {
         </html>
     );
 }
+
+export default ClerkApp(App);

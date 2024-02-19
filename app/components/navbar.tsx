@@ -10,6 +10,8 @@ import { cva } from "class-variance-authority";
 import { motion as Motion } from "framer-motion";
 import { useState } from "react";
 import { SearchBar } from "~/components/search-bar";
+import { Button } from "~/components/ui/button";
+import { SignInButton, SignUpButton, useAuth } from "@clerk/remix";
 
 const navigationMenuTriggerStyle = cva(
     "group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent text-gray-100 px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50",
@@ -25,6 +27,8 @@ interface INavbarProps {
 }
 
 function DesktopNavbar(props: INavbarProps) {
+    const { isLoaded, userId } = useAuth();
+
     return (
         <div className="flex w-full justify-between items-center">
             <div className="flex space-x-4 items-center">
@@ -58,6 +62,30 @@ function DesktopNavbar(props: INavbarProps) {
                 </NavigationMenu>
             </div>
             <SearchBar />
+            <div className="md:space-x-2 flex items-center justify-center ml-2">
+                {!isLoaded || !userId && (
+                    <>
+                        <SignInButton>
+                            <Button>
+                                Log In
+                            </Button>
+                        </SignInButton>
+                        <SignUpButton>
+                            <Button variant="outline">
+                                Sign In
+                            </Button>
+                        </SignUpButton>
+                    </>
+                ) || (
+                    <>
+                        <Button variant="outline" asChild>
+                            <Link to={"/profile/invitations"}>
+                                Profile
+                            </Link>
+                        </Button>
+                    </>
+                )}
+            </div>
         </div>
     );
 }
@@ -165,6 +193,42 @@ function MobileNavbar(props: INavbarProps) {
                         </Link>
                     </Motion.button>
                 ))}
+                <Motion.div
+                    variants={{
+                        visible: {
+                            opacity: 1,
+                            x: 0,
+                        },
+                        hidden: {
+                            opacity: 0,
+                            x: -25,
+                        },
+                    }}
+                >
+                    <SignInButton>
+                        <Button>
+                            Log In
+                        </Button>
+                    </SignInButton>
+                </Motion.div>
+                <Motion.div
+                    variants={{
+                        visible: {
+                            opacity: 1,
+                            x: 0,
+                        },
+                        hidden: {
+                            opacity: 0,
+                            x: -25,
+                        },
+                    }}
+                >
+                    <SignUpButton>
+                        <Button variant="outline">
+                            Sign In
+                        </Button>
+                    </SignUpButton>
+                </Motion.div>
             </Motion.div>
         </div>
     );
